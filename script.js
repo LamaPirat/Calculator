@@ -1,7 +1,17 @@
 // The important variables
-let displayValue = 0;
-let lastKeyPress = "";
-let keysPressed = [];
+let displayValue = "";
+let firstKeysPressed = [];
+let secondKeysPressed = [];
+let operatorPressed = "";
+let operators = ["-", "X", "c", "/", ".", "+"];
+let sum = 0;
+
+let firstValue = "";
+let secondValue = "";
+let first = true;
+
+//selectors
+let display = document.querySelector(".display");
 
 // add function, returns sum
 function add(a, b) {
@@ -106,10 +116,66 @@ function whichButton(key) {
 
 //buttonPressed function, gets called when a button is called. Receives the data-key value. Calls whichButton,
 //then checks what type of value lastKeyPress now has to determine next step
-function buttonPressed(e) {
-  //Eventlistener for every key on the calculator
-  const key = document.querySelector(`button[data-key="${e.keyCode}"]`);
-  console.log(key);
-  console.log("hey");
+function buttonPressed() {
+  ///console.log(this.dataset.key);
+  display.textContent += this.textContent;
+
+  if (this.textContent === "C") {
+    display.textContent = "";
+    firstKeysPressed = [];
+    secondKeysPressed = [];
+    operatorPressed = "";
+    sum = 0;
+    firstValue = "";
+    secondValue = "";
+    first = true;
+  } else if (operators.includes(this.textContent)) {
+    operatorPressed = this.textContent;
+    first = false;
+  } else if (first === true) {
+    firstKeysPressed.push(this.textContent);
+  } else if (this.textContent != "=") {
+    secondKeysPressed.push(this.textContent);
+  } else {
+    firstKeysPressed.forEach((numString) => {
+      firstValue += numString;
+    });
+    secondKeysPressed.forEach((numString) => {
+      secondValue += numString;
+    });
+  }
+
+  if (this.textContent === "=") {
+    display.textContent = "";
+    switch (operatorPressed) {
+      case "+":
+        sum = add(+firstValue, +secondValue);
+        display.textContent = String(sum);
+        break;
+      case "-":
+        sum = subtract(+firstValue, +secondValue);
+        display.textContent = String(sum);
+        break;
+      case "x":
+        sum = multiply(+firstValue, +secondValue);
+        display.textContent = String(sum);
+        break;
+      case "/":
+        sum = divide(+firstValue, +secondValue);
+        display.textContent = String(sum);
+        break;
+    }
+    firstValue = String(sum);
+    firstKeysPressed = [];
+    secondKeysPressed = [];
+    operatorPressed = "";
+    sum = 0;
+    secondValue = "";
+  }
 }
-window.addEventListener("click", buttonPressed);
+
+let keyButtons = document.querySelectorAll(".calcButton");
+
+keyButtons.forEach((calcButton) => {
+  calcButton.addEventListener("click", buttonPressed);
+});
